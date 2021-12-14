@@ -1,4 +1,4 @@
-// Stack Size needs to be increased to avoid carshing: https://github.com/esphome/issues/issues/855
+// Stack Size might need increasing to avoid crashing: https://github.com/esphome/issues/issues/855
 //
 // EDIT:    .platformio/packages/framework-arduinoespressif32/cores/esp32/main.cpp
 // CHANGE:  xTaskCreateUniversal(loopTask, "loopTask", ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
@@ -40,6 +40,7 @@ private:
 public:
     std::string status = "";
 
+    // Modify the number of sensors to match configuration.yaml
     const char* id1;
     const char* id2;
     const char* id3;
@@ -224,25 +225,25 @@ public:
                         }
                         if (!strcmp(knxdata.sensor_id,id2)) {
                             temperature2->publish_state(knxdata.temperature);
-			                  }
+                        }
                         if (!strcmp(knxdata.sensor_id,id3)) {
                             temperature3->publish_state(knxdata.temperature);
-			                  }
+                        }
                         if (!strcmp(knxdata.sensor_id,id4)) {
                             temperature4->publish_state(knxdata.temperature);
-			                  }
+                        }
                         if (!strcmp(knxdata.sensor_id,id5)) {
                             temperature5->publish_state(knxdata.temperature);
-			                  }
+                        }
                         if (!strcmp(knxdata.sensor_id,id6)) {
                             temperature6->publish_state(knxdata.temperature);
-			                  }
+                        }
                         if (!strcmp(knxdata.sensor_id,id7)) {
                             temperature7->publish_state(knxdata.temperature);
-			                  }
+                        }
                         if (!strcmp(knxdata.sensor_id,id8)) {
                             temperature8->publish_state(knxdata.temperature);
-			                  }
+                        }
                     }
                 }
             }

@@ -20,6 +20,7 @@ api:
 ota:
    password: !secret ota_password
 
+# Modify the number of sensors below and in knx_rf.h accordingly to your needs
 sensor:
 - platform: custom
   lambda: |-
