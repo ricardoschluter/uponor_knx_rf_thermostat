@@ -1,114 +1,67 @@
+// Stack Size needs to be increased to avoid carshing: https://github.com/esphome/issues/issues/855
+//
+// EDIT:    .platformio/packages/framework-arduinoespressif32/cores/esp32/main.cpp
+// CHANGE:  xTaskCreateUniversal(loopTask, "loopTask", ARDUINO_LOOP_STACK_SIZE, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
+// TO:	    xTaskCreateUniversal(loopTask, "loopTask", 32768, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);
+
 #include "esphome.h"
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
 #include <Crc16.h>
 
-
 static const char *TAG = "KNXRFGATEWAY";
-static const char *SENSOR = "UPONOR";
-byte buffer[400] =  {0xFF};
+byte buffer[400] = {0xFF};
+
 struct KNXDATA {
-      byte data[200] = {0};
-      int length;
-      bool crcError;
-      uint8_t battery_status;
-      uint8_t unidirectional;
-      uint16_t serialNoHighWord;
-      uint16_t serialNoLowWord;
-      char sensor_id[13] = {0};
-      const char* sensor_name;
-      uint16_t source_address;
-      uint16_t target_address;
-      uint8_t is_group_address;
-      uint8_t max_counter;
-      uint8_t frame_no;
-      uint8_t add_ext_type;
-      uint8_t tpci;
-      uint8_t seq_number;
-      uint8_t apci;
-      uint16_t sensor_data;
-      int RSSI;
-      int lqi;
-      double temperature;
-
+    byte data[200] = {0};
+    int length;
+    bool crcError;
+    uint8_t unidirectional;
+    uint16_t serialNoHighWord;
+    uint16_t serialNoLowWord;
+    char sensor_id[13] = {0};
+    uint16_t source_address;
+    uint16_t target_address;
+    uint8_t is_group_address;
+    uint8_t max_counter;
+    uint8_t frame_no;
+    uint8_t add_ext_type;
+    uint8_t tpci;
+    uint8_t seq_number;
+    uint8_t apci;
+    uint16_t sensor_data;
+    double temperature;
 };
 
-
-
-class UponorThermostat {
-    public:
-        const char* id_;
-        const char* name_;
-        double target_temp;
-        double current_temp;
-        int battery_state = -1;
-        double rssi;
-        double lqi;
-        Sensor *current_temperature_sensor =  new Sensor();
-        Sensor *target_temperature_sensor = new Sensor();
-        esphome::binary_sensor::BinarySensor *battery_state_sensor = new esphome::binary_sensor::BinarySensor();
-        Sensor *rssi_sensor = new Sensor();
-        Sensor *lqi_sensor = new Sensor();
-        UponorThermostat(const char* id,const char* name):id_(id),name_(name){
-            ESP_LOGD(SENSOR,"Uponorthermostat created. %s %s",id,name);
-        }
-
-        void update_current_temp(double temp){
-            if (current_temp != temp){
-                current_temp = temp;
-                current_temperature_sensor->publish_state(current_temp);
-            }
-        }
-        void update_target_temp(double temp){
-            if (target_temp != temp){
-                target_temp = temp;
-                target_temperature_sensor->publish_state(target_temp);
-            }
-        }
-        
-        void update_battery_state(int state){
-            state = !state;
-            if (battery_state != state){
-                battery_state = state;
-                battery_state_sensor->publish_state(battery_state);
-            }
-        }
-        void update_rssi(int value){
-            if (rssi != value){
-                rssi = value;
-                rssi_sensor->publish_state(rssi);
-            }
-        }
-        void update_lqi(int value){
-            if (lqi != value){
-                lqi = value;
-                lqi_sensor->publish_state(lqi);
-            }
-        }
-
-};
-
-
-class KNXRFGateway : public Component,  public Sensor {
+class KNXRFGateway : public Component, public Sensor {
 private:
     int knx_offset = 32;
     std::map<std::string, std::string> ids;
 
-
 public:
-    std::map<std::string,UponorThermostat*> sensors;
     std::string status = "";
-    KNXRFGateway(std::map<std::string,UponorThermostat*> thermostats){
-        sensors = thermostats;
-    }
+
+    const char* id1;
+    const char* id2;
+    const char* id3;
+    const char* id4;
+    const char* id5;
+    const char* id6;
+    const char* id7;
+    const char* id8;
+
+    // Receive sensor id:s from configuration
+    KNXRFGateway(const char* id1, const char* id2, const char* id3, const char* id4, const char* id5, const char* id6, const char* id7, const char* id8):id1(id1),id2(id2),id3(id3),id4(id4),id5(id5),id6(id6),id7(id7),id8(id8) {}
+
+    Sensor *temperature1 = new Sensor();
+    Sensor *temperature2 = new Sensor();
+    Sensor *temperature3 = new Sensor();
+    Sensor *temperature4 = new Sensor();
+    Sensor *temperature5 = new Sensor();
+    Sensor *temperature6 = new Sensor();
+    Sensor *temperature7 = new Sensor();
+    Sensor *temperature8 = new Sensor();
 
     struct KNXDATA parse(struct KNXDATA knxdata){
-        //Rssi Level in dBm
-        knxdata.RSSI =  ELECHOUSE_cc1101.getRssi();
-    
-        //Link Quality Indicator
-        knxdata.lqi =  ELECHOUSE_cc1101.getLqi();
-    
-        knxdata.battery_status = (get_knx_data(knxdata,3) & 0x2) >> 1;
         knxdata.unidirectional = get_knx_data(knxdata,3) & 0x1;
         knxdata.serialNoHighWord    = get_knx_data(knxdata,4);
         knxdata.serialNoHighWord    = (knxdata.serialNoHighWord << 8) + get_knx_data(knxdata,5);
@@ -129,37 +82,8 @@ public:
         knxdata.apci = get_knx_data(knxdata,19);
         knxdata.sensor_data = (get_knx_data(knxdata,20)<<8)+ get_knx_data(knxdata,21);
         knxdata.temperature  = transformTemperature(knxdata.sensor_data) / 100.0;
-        return knxdata;
-    }
 
-    void log_data(struct KNXDATA knxdata){
-        ESP_LOGI(TAG, "Sensor id: %s",knxdata.sensor_id);
-        if (knxdata.crcError){    
-            ESP_LOGE(TAG,"CRC error");
-        } else {
-            ESP_LOGI(TAG,"CRC OK");
-        }
-        if (knxdata.sensor_name != NULL){
-            ESP_LOGI(TAG, "Sensor name: %s",knxdata.sensor_name);
-        } else {
-            ESP_LOGI(TAG, "Sensor name: UNKNOWN");
-        }
-        ESP_LOGI(TAG, "Received data length: %i",knxdata.length);
-        ESP_LOGI(TAG, "Battery status: %i",knxdata.battery_status);
-        ESP_LOGI(TAG, "Unidirectional: %i",knxdata.unidirectional);
-        ESP_LOGI(TAG, "Source address (default=1535): %i", knxdata.source_address);
-        ESP_LOGI(TAG, "Target address: %i", knxdata.target_address);
-        ESP_LOGI(TAG, "Is group address: %i", knxdata.is_group_address);
-        ESP_LOGI(TAG, "Repetition counter: %i",knxdata.max_counter);
-        ESP_LOGI(TAG, "Data link layer frame no: %i",knxdata.frame_no);
-        ESP_LOGI(TAG, "Addr ext type(0=serial,1=domain): %i",knxdata.add_ext_type);
-        ESP_LOGI(TAG, "TPCI (0=unnumb,1=numbered,10=unnumcont,11 numbercontrol): %i",knxdata.tpci);
-        ESP_LOGI(TAG, "Sequence number: %i",knxdata.seq_number);
-        ESP_LOGI(TAG, "Temperature: %f",knxdata.temperature);
-        ESP_LOGI(TAG, "APCI (0=group read,64 = group response,128 = group write):%i",knxdata.apci);
-        ESP_LOGI(TAG, "RSSI: %i", knxdata.RSSI );
-        ESP_LOGI(TAG, "LQI: %i",  knxdata.lqi );
-         
+        return knxdata;
     }
 
     byte get_knx_data(struct KNXDATA knxdata, int index) {
@@ -171,25 +95,6 @@ public:
         return data;
     }
 
-
-    void update_status(){
-        
-        std::map<std::string, std::string>::iterator it = ids.begin();
-        std::string text ="Seen ids:\n";
-        while (it !=  ids.end())
-        {
-            std::string id = it->first;
-            if (sensors.find(id) != sensors.end()){
-                text += id + "(" + sensors[id]->name_ +  "), last seen " + it->second +"\n";
-            } else {
-                text += id +", last seen " + it->second +"\n";
-            }
-            it++;
-        }
-        status = text;
-    }
-
-    
     int mandecode(unsigned int a1) {
         int ret = 0;
         for (int i = 0; i < 8; i++)
@@ -205,15 +110,14 @@ public:
                 break;
             case 0b10:
                 ret = (ret << 1) | 0;
-                
                 break;
             }
         }
-        
+
         return ret;
     }
+
     void setup() override {
-                       
         ESP_LOGD(TAG, "Starting setup");
         ELECHOUSE_cc1101.Init();                // must be set to initialize the cc1101!
         ELECHOUSE_cc1101.setCCMode(1);          // set config for internal transmission mode.
@@ -225,7 +129,7 @@ public:
         ELECHOUSE_cc1101.setRxBW(270.833333);       // Set the Receive Bandwidth in kHz. Value from 58.03 to 812.50. Default is 812.50 kHz.
         ELECHOUSE_cc1101.setDRate(32.7301);       // Set the Data Rate in kBaud. Value from 0.02 to 1621.83. Default is 99.97 kBaud!
         ELECHOUSE_cc1101.setPA(5);             // Set TxPower. The following settings are possible depending on the frequency band.  (-30  -20  -15  -10  -6    0    5    7    10   11   12) Default is max!
-        ELECHOUSE_cc1101.setSyncMode(5);//5        // Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.
+        ELECHOUSE_cc1101.setSyncMode(5);       // Combined sync-word qualifier mode. 0 = No preamble/sync. 1 = 16 sync word bits detected. 2 = 16/16 sync word bits detected. 3 = 30/32 sync word bits detected. 4 = No preamble/sync, carrier-sense above threshold. 5 = 15/16 + carrier-sense above threshold. 6 = 16/16 + carrier-sense above threshold. 7 = 30/32 + carrier-sense above threshold.
         ELECHOUSE_cc1101.setSyncWord(0x76, 0x96); // Set sync word. Must be the same for the transmitter and receiver. (Syncword high, Syncword low)
         ELECHOUSE_cc1101.setAdrChk(0);          // Controls address check configuration of received packages. 0 = No address check. 1 = Address check, no broadcast. 2 = Address check and 0 (0x00) broadcast. 3 = Address check and 0 (0x00) and 255 (0xFF) broadcast.
         ELECHOUSE_cc1101.setAddr(0);            // Address used for packet filtration. Optional broadcast addresses are 0 (0x00) and 255 (0xFF).
@@ -257,26 +161,19 @@ public:
         ELECHOUSE_cc1101.SpiWriteReg(CC1101_FSCAL3,  0xEF);
         ELECHOUSE_cc1101.SpiWriteReg(CC1101_FSCAL2,  0x2E);
         ELECHOUSE_cc1101.SpiWriteReg(CC1101_FSCAL1,  0x19);
-        for(int i=0 ; i<47 ; i++) {
-            ESP_LOGD(TAG, "REG: %02x", ELECHOUSE_cc1101.SpiReadReg(i));
-        }
-
-
         ESP_LOGD(TAG, "Setup done.");
     }
+
     void loop() override {
-        // This will be called very often after setup time.
-        // think of it as the loop() call in Arduino
         if (ELECHOUSE_cc1101.CheckRxFifo(100)) {
 
             //CRC Check. If "setCrc(false)" crc returns always OK!
             if (ELECHOUSE_cc1101.CheckCRC()) {
                 struct KNXDATA knxdata;
-          
+
                 //Get received Data and calculate length
                 int len = ELECHOUSE_cc1101.ReceiveData(buffer);
                 buffer[len] = '\0';
-                ESP_LOGD(TAG,"Received raw data %s",hexencode(buffer,len).c_str());
                 knxdata.length = len;
                 byte pckidx = 0;
                 for (int i = 0 ; i < len; i++) {
@@ -285,41 +182,33 @@ public:
                         pckidx++;
                     }
                 }
-                ESP_LOGD(TAG,"Received encoded data %s",hexencode(knxdata.data,len/2).c_str());
                 uint8_t crcError = true, crcFailIdx = 0;
                 uint32_t crcValue, serialNoLowWord = 0;
                 uint8_t crcFailed, startIdx, blockIdx;
                 uint16_t packetLength = 0, serialNoHighWord = 0;
                 Crc16 crc;
+
                 //KNX frame
                 if (len > 68 &&  knxdata.data[knx_offset + 1] == 68 &&  knxdata.data[knx_offset+2] == 255) {
 
-                    ESP_LOGD(TAG,"KNX dataframe recognized");
                     int packetLength = (14+((knxdata.data[knx_offset]-9)%16)+(((knxdata.data[knx_offset]-9)/16)*18))*2;
-        
-                    ESP_LOGD(TAG,"Packet length: %i",packetLength);
-            
-                
+
                     packetLength  = (packetLength >> 1) + knx_offset;
-                    //packetLength = 76;
-                    ESP_LOGD(TAG,"Packet len crc %i", packetLength);
                     if (packetLength > 2) {
                         crcError = false;
-                    
-                        startIdx = knx_offset; 
+                        startIdx = knx_offset;
                         blockIdx = 12;
                         crcFailIdx = 0;
                         crcFailed = 0;
-                                              
-                    while ((startIdx<packetLength)) {          
+
+                    while ((startIdx<packetLength)) {
                             crcValue = knxdata.data[min(packetLength-2,startIdx+blockIdx-2)];
                             crcValue = (crcValue<<8)+knxdata.data[min(packetLength-1,startIdx+blockIdx-1)];
                             if (((crc.fastCrc(knxdata.data,startIdx,min(packetLength-startIdx-2,blockIdx-2),false,false,0x3D65,0,0,0x8000,0)^0xFFFF)&0xFFFF)!=crcValue) {
-                                ESP_LOGE(TAG,"CRC FAILURE, %i, %i,%i,%i",startIdx,min(packetLength-startIdx-2,blockIdx-2),((crc.fastCrc(knxdata.data,startIdx,min(packetLength-startIdx-2,blockIdx-2),false,false,0x3D65,0,0,0x8000,0)^0xFFFF)&0xFFFF),crcValue );
                                 crcError = true;
                                 crcFailed = crcFailed | (1<<crcFailIdx);
                             }
-                            startIdx +=blockIdx;         
+                            startIdx +=blockIdx;
                             blockIdx = 18;
                             ++crcFailIdx;
                         }
@@ -328,51 +217,35 @@ public:
 
                     knxdata = parse(knxdata);
 
-                    if (!knxdata.crcError){
-                        //if(ids.find(knxdata.sensor_id) == ids.end()){
-                            ids[knxdata.sensor_id] =  homeassistant_time->now().strftime("%Y-%m-%d %H:%M");
-                            update_status();
-                        //}
-                    }
-
-                    if (sensors.find(knxdata.sensor_id) != sensors.end()){
-                        UponorThermostat *sensor = sensors[knxdata.sensor_id];
-                        knxdata.sensor_name = sensor->name_;
-                        ESP_LOGD(TAG,"Sensor %s (%s) in sensor list.", knxdata.sensor_id,sensor->name_);
-                        if (!knxdata.crcError){
-
-
-
-                            if (knxdata.target_address == 1){
-                                ESP_LOGD(SENSOR,"Target address == 1, updating current temperature");
-                                sensor->update_current_temp(knxdata.temperature);
-                                sensor->update_lqi(knxdata.lqi);
-                                sensor->update_rssi(knxdata.RSSI);
-                        
-                            } else if (knxdata.target_address == 2){
-                                ESP_LOGD(SENSOR,"Target address == 2, updating target temperature");
-                                sensor->update_target_temp(knxdata.temperature);
-                            } else {
-                                ESP_LOGE(SENSOR,"Unrecognized target address %d",knxdata.target_address);
-                            }
-                            
-                            if(knxdata.target_address == 1 || knxdata.target_address == 2){
-                                sensor->update_lqi(knxdata.lqi);
-                                sensor->update_rssi(knxdata.RSSI);
-                                sensor->update_battery_state(knxdata.battery_status*100);
-                            }
+                    // Only publish when temperature is received and is above threshold to filter outliers
+                    if (knxdata.target_address == 1 && knxdata.temperature > 16) {
+                        if (!strcmp(knxdata.sensor_id,id1)) {
+                            temperature1->publish_state(knxdata.temperature);
                         }
-                    } else {
-                        ESP_LOGI(TAG,"Sensor %s not in sensor list.", knxdata.sensor_id);
+                        if (!strcmp(knxdata.sensor_id,id2)) {
+                            temperature2->publish_state(knxdata.temperature);
+			                  }
+                        if (!strcmp(knxdata.sensor_id,id3)) {
+                            temperature3->publish_state(knxdata.temperature);
+			                  }
+                        if (!strcmp(knxdata.sensor_id,id4)) {
+                            temperature4->publish_state(knxdata.temperature);
+			                  }
+                        if (!strcmp(knxdata.sensor_id,id5)) {
+                            temperature5->publish_state(knxdata.temperature);
+			                  }
+                        if (!strcmp(knxdata.sensor_id,id6)) {
+                            temperature6->publish_state(knxdata.temperature);
+			                  }
+                        if (!strcmp(knxdata.sensor_id,id7)) {
+                            temperature7->publish_state(knxdata.temperature);
+			                  }
+                        if (!strcmp(knxdata.sensor_id,id8)) {
+                            temperature8->publish_state(knxdata.temperature);
+			                  }
                     }
-                    log_data(knxdata);
-            
                 }
-            
             }
         }
     }
-
-
-    
 };
