@@ -18,3 +18,12 @@ The component from the original repo has been simplified to only publish tempera
 - *xTaskCreateUniversal(loopTask, "loopTask", 32768, NULL, 1, &loopTaskHandle, CONFIG_ARDUINO_RUNNING_CORE);*
 
 For further information see: https://github.com/esphome/issues/issues/855
+
+## Initial setup
+
+To find all MAC-addresses of the thermostats in your system, enable debugging:
+
+<pre>
+logger:
+  level: DEBUG
+</pre>
