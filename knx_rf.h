@@ -220,6 +220,9 @@ public:
 
                     // Only publish when temperature is received and is above threshold to filter outliers
                     if (knxdata.target_address == 1 && knxdata.temperature > 16) {
+                        // Debug message to find out all broadcasting thermostats. Please enable level: DEBUG in configuration
+                        ESP_LOGD(”KNX”, ”Get message from: %s”, knxdata.sensor_id);
+                        
                         if (!strcmp(knxdata.sensor_id,id1)) {
                             temperature1->publish_state(knxdata.temperature);
                         }
