@@ -6,3 +6,4 @@
 /ESP32_KNX_RF_UPONOR_EXAMPLE.yaml
 /.vs/uponor_knx_rf_thermostat/FileContentIndex
 /.vs
+/knx_rf_listener.yaml
