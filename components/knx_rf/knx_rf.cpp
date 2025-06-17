@@ -1,5 +1,5 @@
 ﻿#include "knx_rf.h"
-#include "Elechouse_CC1101_SRC_DRV.h"  // or wherever you pull in the CC1101 driver
+#include "ELECHOUSE_CC1101_SRC_DRV.h" 
 #include "esphome.h"
 
 namespace esphome {

@@ -19,6 +19,10 @@ CONFIG_SCHEMA = cv.Schema({
 async def to_code(config):
     # 3) Create the C++ object
     var = cg.new_Pvariable(config[CONF_ID])
+    cg.add_library(
+      name="SmartRC-CC1101-Driver-Lib",
+      repository="https://github.com/LSatan/SmartRC-CC1101-Driver-Lib.git",
+      version=None,)
     # 4) Register it so ESPHome calls setup(), loop(), etc.
     await cg.register_component(var, config)
     return var
