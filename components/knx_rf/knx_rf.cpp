@@ -92,7 +92,7 @@ namespace esphome {
             static constexpr int knx_offset_ = 3;
             constexpr int offset_id = knx_offset_;            // where sensor ID bytes start
             constexpr int offset_temp = knx_offset_ + 4;      // where temperature bytes start
-            +constexpr int offset_target = knx_offset_ + 2;    // where target_address lives
+            constexpr int offset_target = knx_offset_ + 2;    // where target_address lives
 
             // Build ID string
             snprintf(d.sensor_id, sizeof(d.sensor_id), "%02X%02X%02X%02X",
@@ -103,8 +103,8 @@ namespace esphome {
             uint16_t raw = (uint16_t(buf[offset_temp]) << 8) | buf[offset_temp + 1];
             d.temperature = transform_temperature_(raw);
 
-            + // Parse target address
-                +d.target_address = buf[offset_target];
+           // Parse target address
+           d.target_address = buf[offset_target];
 
             return d;
         }
