@@ -13,10 +13,10 @@ KNXRFGateway = knx_rf_ns.class_(
 )
 
 # 2) Configuration schema: only an `id` is needed at top level
-CONFIG_SCHEMA = cv.Schema({
+CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend({
     cv.GenerateID(): cv.declare_id(KNXRFGateway),
     cv.Optional('ids', default=[]): cv.All(cv.ensure_list, [cv.string]),
-}).extend(cv.COMPONENT_SCHEMA)
+})
 
 
 async def to_code(config):
