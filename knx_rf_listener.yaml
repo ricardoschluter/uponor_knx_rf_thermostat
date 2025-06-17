@@ -5,7 +5,11 @@ esphome:
   - "SPI"
   
 external_components:
-  - source: my_components
+  - source:
+      type: git
+      url: https://github.com/ricardoschluter/uponor_knx_rf_thermostat
+    components: ["knx_rf"]
+    refresh: 0s
 
 esp32:
   board: esp32dev
