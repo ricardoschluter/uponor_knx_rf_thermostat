@@ -9,7 +9,7 @@ namespace esphome {
             : ids_(ids) {
         }
 
-        void KNXRFGateway::add_sensor(const std::string& id, Sensor* sensor) {
+        void KNXRFGateway::add_sensor(const std::string& id, esphome::sensor::Sensor* sensor) {
             sensor_map_[id] = sensor;
         }
 
