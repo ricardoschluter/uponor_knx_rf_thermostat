@@ -39,29 +39,27 @@ namespace esphome {
 				char     sensor_id[13];
 			};
 
-		class KNXRFGateway : public Component {
-		public:
-			/**
-			 * @param ids  List of thermostat IDs (hex strings) to listen for
-			 */
-			explicit KNXRFGateway(const std::vector<std::string>& ids);
+			class KNXRFGateway : public Component {
+			public:
+				explicit KNXRFGateway(const std::vector<std::string>& ids);
+				void setup() override;
+				void loop() override;
 
-			void setup() override;
-			void loop() override;
+				/// Register one Sensor under a given thermostat ID
+				void add_sensor(const std::string& id, ::esphome::sensor::Sensor* sensor);
 
-			/** Called by to_code() to register each Sensor* under its ID */
-			void add_sensor(const std::string& id, esphome::sensor::Sensor* sensor);
+			private:
+				static constexpr int knx_offset_ = 3;  ///< start index of KNX payload
 
-		private:
-			// Helpers
-			KNXDATA parse_(const uint8_t* buffer, int len);
-			uint8_t get_knx_byte_(const KNXDATA& knx, int offset);
-			double transform_temperature_(uint16_t raw);
+				KNXDATA parse_(const uint8_t* buffer, int len);
+				uint8_t  get_knx_byte_(const KNXDATA& knx, int offset);
+				double   transform_temperature_(uint16_t raw);
 
-			std::vector<std::string> ids_;                ///< IDs from YAML
-			std::map<std::string, Sensor*> sensor_map_;   ///< ID → Sensor*
-			uint8_t buffer_[400];
-		};
+				std::vector<std::string>                         ids_;
+				std::map<std::string, ::esphome::sensor::Sensor*> sensor_map_;
+				uint8_t                                          buffer_[256];
+			};
+
 
 	}  // namespace knx_rf
 }  // namespace esphome
