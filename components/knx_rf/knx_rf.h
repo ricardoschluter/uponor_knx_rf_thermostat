@@ -7,6 +7,7 @@
 #include <string>
 
 namespace esphome {
+	namespace sensor { class Sensor; }
 	namespace knx_rf {
 
 		/** Raw KNX frame data structure (you can keep your KNXDATA struct here) */
