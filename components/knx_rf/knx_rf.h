@@ -10,7 +10,6 @@ namespace esphome {
 	namespace knx_rf {
 
 		/** Raw KNX frame data structure (you can keep your KNXDATA struct here) */
-		struct KNXDATA {
 			struct KNXDATA {
 				// Always first: raw buffer & length
 				uint8_t  data[200];
@@ -38,8 +37,6 @@ namespace esphome {
 				// Null-terminated ID string
 				char     sensor_id[13];
 			};
-
-		};
 
 		class KNXRFGateway : public Component {
 		public:
