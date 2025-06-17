@@ -1,6 +1,7 @@
 ﻿#include "knx_rf.h"
 #include "ELECHOUSE_CC1101_SRC_DRV.h" 
 #include "esphome.h"
+#include "esphome/components/sensor/sensor.h"
 
 namespace esphome {
     namespace knx_rf {
@@ -9,7 +10,7 @@ namespace esphome {
             : ids_(ids) {
         }
 
-        void KNXRFGateway::add_sensor(const std::string& id, esphome::sensor::Sensor* sensor) {
+        void KNXRFGateway::add_sensor(const std::string& id, ::esphome::sensor::Sensor* sensor) {
             sensor_map_[id] = sensor;
         }
 
