@@ -50,7 +50,7 @@ namespace esphome {
 			void loop() override;
 
 			/** Called by to_code() to register each Sensor* under its ID */
-			void add_sensor(const std::string& id, Sensor* sensor);
+			void add_sensor(const std::string& id, esphome::sensor::Sensor* sensor);
 
 		private:
 			// Helpers
