@@ -2,7 +2,7 @@
 import esphome.config_validation as cv
 from esphome.components import spi
 from esphome import pins 
-from esphome.const import CONF_ID
+from esphome.const import CONF_ID, CONF_CS_PIN  
 
 CODEOWNERS = ["@ricardoschluter"]
 DEPENDENCIES = ["spi"]
@@ -22,11 +22,9 @@ CONFIG_SCHEMA = (
     cv.Schema({
         cv.GenerateID(): cv.declare_id(UponorKnxRF),
 
-        cv.Required(CONF_CS_PIN):   pins.gpio_output_pin_schema,
         cv.Required(CONF_GDO0_PIN): pins.gpio_input_pin_schema,
         cv.Required(CONF_GDO2_PIN): pins.gpio_input_pin_schema,
         cv.Optional(CONF_RST_PIN):  pins.gpio_output_pin_schema,
-
         cv.Optional(CONF_FREQUENCY, default=868_300_000): cv.frequency,
         cv.Optional(CONF_THERMOSTATS, default=[]): cv.ensure_list(cv.HexInt),
     })
@@ -39,7 +37,10 @@ async def to_code(config):
     await cg.register_component(var, config)
     await spi.register_spi_device(var, config)
 
-    cs  = await cg.gpio_pin_expression(config[CONF_CS_PIN])
+    if CONF_CS_PIN in config:
+        cs = await cg.gpio_pin_expression(config[CONF_CS_PIN])
+        cg.add(var.set_cs_pin(cs))
+
     g0  = await cg.gpio_pin_expression(config[CONF_GDO0_PIN])
     g2  = await cg.gpio_pin_expression(config[CONF_GDO2_PIN])
     cg.add(var.set_cs_pin(cs))
