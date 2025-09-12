@@ -20,7 +20,7 @@ CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(UponorKnxRF),
 
     # SPI device select (validates it’s on the configured SPI bus)
-    cv.Required(CONF_CS_PIN): cv.spi_cs_pin,
+    cv.Required(CONF_CS_PIN):  cv.internal_gpio_output_pin_schema,
 
     # GDO lines as inputs (internal schema enables pullup/interrupt options)
     cv.Required(CONF_GDO0_PIN): cv.internal_gpio_input_pin_schema,
