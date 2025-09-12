@@ -3,10 +3,6 @@
 #include <SPI.h>
 #include <RadioLib.h>
 #include "knxrf.h"
-#include "esphome/components/spi/spi.h"
-
-
-
 
 namespace esphome {
     namespace uponor_knx_rf {
