@@ -1,6 +1,7 @@
 ﻿import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import spi
+from esphome import pins 
 from esphome.const import CONF_ID
 
 CODEOWNERS = ["@ricardoschluter"]
@@ -21,11 +22,10 @@ CONFIG_SCHEMA = (
     cv.Schema({
         cv.GenerateID(): cv.declare_id(UponorKnxRF),
 
-        # ✅ use generic GPIO schemas (spi_cs_pin no longer exists)
-        cv.Required(CONF_CS_PIN):   cv.internal_gpio_output_pin_schema,
-        cv.Required(CONF_GDO0_PIN): cv.internal_gpio_input_pin_schema,
-        cv.Required(CONF_GDO2_PIN): cv.internal_gpio_input_pin_schema,
-        cv.Optional(CONF_RST_PIN):  cv.internal_gpio_output_pin_schema,
+        cv.Required(CONF_CS_PIN):   pins.gpio_output_pin_schema,
+        cv.Required(CONF_GDO0_PIN): pins.gpio_input_pin_schema,
+        cv.Required(CONF_GDO2_PIN): pins.gpio_input_pin_schema,
+        cv.Optional(CONF_RST_PIN):  pins.gpio_output_pin_schema,
 
         cv.Optional(CONF_FREQUENCY, default=868_300_000): cv.frequency,
         cv.Optional(CONF_THERMOSTATS, default=[]): cv.ensure_list(cv.HexInt),
