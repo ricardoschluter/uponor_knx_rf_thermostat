@@ -7,16 +7,17 @@ from esphome.const import CONF_ID, CONF_CS_PIN
 CODEOWNERS = ["@ricardoschluter"]
 DEPENDENCIES = ["spi"]
 AUTO_LOAD = ["logger"]
+MULTI_CONF = False
 
 ns = cg.esphome_ns.namespace("uponor_knx_rf")
 UponorKnxRF = ns.class_("UponorKnxRF", cg.Component, spi.SPIDevice)
 
-CONF_CS_PIN   = "cs_pin"
 CONF_GDO0_PIN = "gdo0_pin"
 CONF_GDO2_PIN = "gdo2_pin"
 CONF_RST_PIN  = "rst_pin"
 CONF_FREQUENCY = "frequency"
 CONF_THERMOSTATS = "thermostats"
+
 
 CONFIG_SCHEMA = (
     cv.Schema({
@@ -42,8 +43,8 @@ async def to_code(config):
     cg.add(var.set_gdo0_pin(g0))
     cg.add(var.set_gdo2_pin(g2))
 
-    if "rst_pin" in config:
-        rst = await cg.gpio_pin_expression(config["rst_pin"])
+    if CONF_RST_PIN in config:
+        rst = await cg.gpio_pin_expression(config[CONF_RST_PIN])
         cg.add(var.set_rst_pin(rst))
 
     cg.add(var.set_frequency(config["frequency"]))
