@@ -1,12 +1,8 @@
-﻿// knxrf.h
+﻿// components/uponor_knx_rf/knxrf.h
 #pragma once
-#include <memory>
 #include "esphome/core/component.h"
 #include "esphome/core/hal.h"
 #include "esphome/components/spi/spi.h"
-
-class Module;   // fwd
-class CC1101;   // fwd
 
 namespace esphome {
 	namespace uponor_knx_rf {
@@ -18,11 +14,6 @@ namespace esphome {
 			void set_rst_pin(GPIOPin* p) { rst_pin_ = p; }
 			void set_frequency(uint32_t f) { frequency_ = f; }
 
-			// NEW: raw SPI pins (optional)
-			void set_spi_sck_pin(int pin) { spi_sck_ = pin; }
-			void set_spi_miso_pin(int pin) { spi_miso_ = pin; }
-			void set_spi_mosi_pin(int pin) { spi_mosi_ = pin; }
-
 			void setup() override;
 			void loop() override;
 
@@ -31,10 +22,6 @@ namespace esphome {
 			GPIOPin* gdo2_pin_{ nullptr };
 			GPIOPin* rst_pin_{ nullptr };
 			uint32_t frequency_{ 868300000 };
-
-			// optional raw SPI pins for RadioLib
-			int spi_sck_{ -1 }, spi_miso_{ -1 }, spi_mosi_{ -1 };
-
 			std::unique_ptr<Module> module_;
 			std::unique_ptr<CC1101> radio_;
 		};
