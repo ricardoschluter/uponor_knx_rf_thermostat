@@ -8,7 +8,7 @@ CODEOWNERS = ["@yourhandle"]
 DEPENDENCIES = ["spi"]
 AUTO_LOAD = ["logger"]
 
-ns = cg.namespace("esphome").namespace("uponor_knx_rf")
+ns = cg.esphome_ns.namespace("uponor_knx_rf")
 UponorKnxRF = ns.class_("UponorKnxRF", cg.Component, spi.SPIDevice)
 
 CONF_CS_PIN   = "cs_pin"
