@@ -35,27 +35,21 @@ CONFIG_SCHEMA = (
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
-    await spi.register_spi_device(var, config)
+    await spi.register_spi_device(var, config)  # this wires up cs_pin for you
 
-    if CONF_CS_PIN in config:
-        cs = await cg.gpio_pin_expression(config[CONF_CS_PIN])
-        cg.add(var.set_cs_pin(cs))
-
-    g0  = await cg.gpio_pin_expression(config[CONF_GDO0_PIN])
-    g2  = await cg.gpio_pin_expression(config[CONF_GDO2_PIN])
-    cg.add(var.set_cs_pin(cs))
+    g0 = await cg.gpio_pin_expression(config["gdo0_pin"])
+    g2 = await cg.gpio_pin_expression(config["gdo2_pin"])
     cg.add(var.set_gdo0_pin(g0))
     cg.add(var.set_gdo2_pin(g2))
 
-    if CONF_RST_PIN in config:
-        rst = await cg.gpio_pin_expression(config[CONF_RST_PIN])
+    if "rst_pin" in config:
+        rst = await cg.gpio_pin_expression(config["rst_pin"])
         cg.add(var.set_rst_pin(rst))
 
-    cg.add(var.set_frequency(config[CONF_FREQUENCY]))
-    for tid in config[CONF_THERMOSTATS]:
+    cg.add(var.set_frequency(config["frequency"]))
+    for tid in config.get("thermostats", []):
         cg.add(var.add_thermostat_id(tid))
 
-    # Pull RadioLib automatically
     cg.add_library(
         name="RadioLib",
         repository="https://github.com/jgromes/RadioLib",
